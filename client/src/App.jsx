@@ -33,7 +33,7 @@ export default function App() {
 
       console.log(res.data);
 
-      alert("درخواست شما ثبت شد ✅");
+      alert("درخواست شما ثبت شد ");
 
       // ریست فرم
       setFormData({
@@ -49,7 +49,7 @@ export default function App() {
 
     } catch (err) {
       console.error(err);
-      alert("خطا در ارسال ❌");
+      alert("خطا در ارسال ");
     }
   };
 

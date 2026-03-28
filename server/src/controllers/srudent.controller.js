@@ -51,7 +51,7 @@ export const addStudent = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: `Student saved successfully in ${fileName} ✅`
+      message: `Student saved successfully in ${fileName} `
     });
 
   } catch (error) {
