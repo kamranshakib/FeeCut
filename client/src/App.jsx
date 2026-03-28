@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import "./App.css";
 
 export default function App() {
@@ -21,10 +22,35 @@ export default function App() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    alert("درخواست شما ثبت شد");
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/students",
+        formData
+      );
+
+      console.log(res.data);
+
+      alert("درخواست شما ثبت شد ✅");
+
+      // ریست فرم
+      setFormData({
+        id: "",
+        name: "",
+        lastName: "",
+        fatherName: "",
+        school: "",
+        province: "",
+        examType: "",
+        time: ""
+      });
+
+    } catch (err) {
+      console.error(err);
+      alert("خطا در ارسال ❌");
+    }
   };
 
   return (
@@ -38,37 +64,37 @@ export default function App() {
           <div className="formGrid">
 
             <div className="inputBox">
-              <input name="id" onChange={handleChange} required placeholder=" " />
+              <input name="id" value={formData.id} onChange={handleChange} required placeholder=" " />
               <label>آیدی</label>
             </div>
 
             <div className="inputBox">
-              <input name="name" onChange={handleChange} required placeholder=" " />
+              <input name="name" value={formData.name} onChange={handleChange} required placeholder=" " />
               <label>نام</label>
             </div>
 
             <div className="inputBox">
-              <input name="lastName" onChange={handleChange} required placeholder=" " />
+              <input name="lastName" value={formData.lastName} onChange={handleChange} required placeholder=" " />
               <label>تخلص</label>
             </div>
 
             <div className="inputBox">
-              <input name="fatherName" onChange={handleChange} required placeholder=" " />
+              <input name="fatherName" value={formData.fatherName} onChange={handleChange} required placeholder=" " />
               <label>نام پدر</label>
             </div>
 
             <div className="inputBox">
-              <input name="school" onChange={handleChange} required placeholder=" " />
+              <input name="school" value={formData.school} onChange={handleChange} required placeholder=" " />
               <label>مکتب</label>
             </div>
 
             <div className="inputBox">
-              <input name="province" onChange={handleChange} required placeholder=" " />
+              <input name="province" value={formData.province} onChange={handleChange} required placeholder=" " />
               <label>ولایت</label>
             </div>
 
             <div className="inputBox">
-              <select name="examType" onChange={handleChange} required>
+              <select name="examType" value={formData.examType} onChange={handleChange} required>
                 <option value=""></option>
                 <option>تخفیف پیشگام</option>
                 <option>تخفیف کانکوری</option>
@@ -78,7 +104,7 @@ export default function App() {
             </div>
 
             <div className="inputBox">
-              <select name="time" onChange={handleChange} required>
+              <select name="time" value={formData.time} onChange={handleChange} required>
                 <option value=""></option>
                 <option>قبل از ظهر</option>
                 <option>بعد از ظهر</option>

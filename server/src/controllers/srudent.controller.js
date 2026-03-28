@@ -1,41 +1,65 @@
 import ExcelJS from "exceljs";
 import fs from "fs";
+import path from "path";
 
 export const addStudent = async (req, res) => {
   try {
-    const { name, phone, discount } = req.body;
+    const { id, name, lastName, fatherName, school, province, examType, time } = req.body;
 
-    const workbook = new ExcelJS.Workbook();
-    const filePath = "students.xlsx";
-
-    if (!fs.existsSync(filePath)) {
-      const sheet = workbook.addWorksheet("Students");
-
-      sheet.columns = [
-        { header: "id", key: "id", width: 10 },
-        { header: "name", key: "name", width: 30 },
-        { header: "phone", key: "phone", width: 20 },
-        { header: "discount", key: "discount", width: 10 },
-      ];
-      await workbook.xlsx.writeFile(filePath);
-    } else {
-      await workbook.xlsx.readFile(filePath);
+    if (!id || !name || !lastName || !fatherName || !school || !province || !examType || !time) {
+      return res.status(400).json({ message: "تمام فیلدها ضروری هستند " });
     }
 
-    const sheet = workbook.getWorksheet(1);
+    let fileName;
+    if (examType === "تخفیف پیشگام") fileName = "pishgam.xlsx";
+    else if (examType === "تخفیف کانکوری") fileName = "konkori.xlsx";
+    else if (examType === "تخفیف تطبیقات") fileName = "tatbiqat.xlsx"; 
+    else return res.status(400).json({ message: "نوع امتحان نامعتبر " });
 
-    const id = sheet.rowCount + 1;
+    const filePath = path.join(process.cwd(), fileName);
 
-    sheet.addRow([id, name, phone, discount]);
+    const workbook = new ExcelJS.Workbook();
+    let sheet;
+
+    if (!fs.existsSync(filePath)) {
+      sheet = workbook.addWorksheet("Students");
+    } else {
+      await workbook.xlsx.readFile(filePath);
+      sheet = workbook.getWorksheet("Students") || workbook.addWorksheet("Students");
+    }
+    sheet.columns = [
+      { header: "ID", key: "id", width: 10 },
+      { header: "Name", key: "name", width: 20 },
+      { header: "Last Name", key: "lastName", width: 20 },
+      { header: "Father Name", key: "fatherName", width: 20 },
+      { header: "School", key: "school", width: 25 },
+      { header: "Province", key: "province", width: 20 },
+      { header: "Exam Type", key: "examType", width: 20 },
+      { header: "Time", key: "time", width: 15 },
+    ];
+    const existingIds = [];
+    sheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) existingIds.push(row.getCell(1).value);
+    });
+
+    if (existingIds.includes(id)) {
+      return res.status(400).json({ message: "این آیدی قبلاً ثبت شده " });
+    }
+    sheet.addRow({ id, name, lastName, fatherName, school, province, examType, time });
 
     await workbook.xlsx.writeFile(filePath);
 
-    res.json({
-      message: "Student saved successfully",
+    return res.status(201).json({
+      success: true,
+      message: `Student saved successfully in ${fileName} ✅`
     });
+
   } catch (error) {
-    res.status(500).json({
-      error: error.message,
+    console.error("Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error ",
+      error: error.message
     });
   }
 };
